@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-zinc-100 antialiased;
+  }
+
+  button,
+  input {
+    font-family: inherit;
+  }
+}
