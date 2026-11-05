@@ -15,9 +15,10 @@ const STATUS_STYLE: Record<OrderStatus, string> = {
 
 const BRIEFING_LABEL = { texto: 'Texto', roteiro: 'Roteiro' } as const;
 const ACTION_ERROR_MESSAGE = 'Não foi possível atualizar o pedido. Tente novamente.';
+const PAYMENT_ERROR_MESSAGE = 'Não foi possível abrir o pagamento. Tente novamente.';
 
 export default function OrdersView() {
-  const { profile, orders, creators, currentCreator, setOrderStatus } = useNarra();
+  const { profile, orders, creators, currentCreator, setOrderStatus, payOrder } = useNarra();
   const [busyOrderId, setBusyOrderId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
@@ -38,6 +39,17 @@ export default function OrdersView() {
     } catch {
       setActionError(ACTION_ERROR_MESSAGE);
     } finally {
+      setBusyOrderId(null);
+    }
+  };
+
+  const payNow = async (orderId: string) => {
+    setBusyOrderId(orderId);
+    setActionError(null);
+    try {
+      await payOrder(orderId);
+    } catch {
+      setActionError(PAYMENT_ERROR_MESSAGE);
       setBusyOrderId(null);
     }
   };
@@ -69,6 +81,7 @@ export default function OrdersView() {
           {visibleOrders.map((order) => {
             const isPending = order.status === 'pendente';
             const isBusy = busyOrderId === order.id;
+            const isAwaitingPayment = !isCreator && order.paymentStatus === 'aguardando_pagamento';
             return (
               <li key={order.id} className="rounded-3xl border border-line bg-surface p-5">
                 <div className="flex items-start justify-between gap-3">
@@ -85,8 +98,8 @@ export default function OrdersView() {
                       </p>
                     </div>
                   </div>
-                  <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${STATUS_STYLE[order.status]}`}>
-                    {ORDER_STATUS_LABEL[order.status]}
+                  <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${isAwaitingPayment ? STATUS_STYLE.pendente : STATUS_STYLE[order.status]}`}>
+                    {isAwaitingPayment ? 'Aguardando pagamento' : ORDER_STATUS_LABEL[order.status]}
                   </span>
                 </div>
 
@@ -99,6 +112,16 @@ export default function OrdersView() {
                   <p className="text-sm text-zinc-400">
                     Total <span className="font-semibold text-zinc-50">{formatCurrencyBRL(order.total)}</span>
                   </p>
+                  {isAwaitingPayment && (
+                    <button
+                      type="button"
+                      disabled={isBusy}
+                      onClick={() => payNow(order.id)}
+                      className="h-9 rounded-xl bg-primary-500 px-3 text-xs font-semibold text-zinc-950 transition hover:bg-primary-400 disabled:opacity-50"
+                    >
+                      Pagar agora
+                    </button>
+                  )}
                   {isCreator && isPending && (
                     <div className="flex gap-2">
                       <button

@@ -6,6 +6,7 @@ import { initialNarraState, narraReducer } from '@/state/narraReducer';
 import {
   checkPlatformAdmin,
   createOwnedCreator,
+  createOrderCheckout,
   createProfile,
   decideWithdrawal as decideWithdrawalApi,
   fetchCreators,
@@ -163,6 +164,11 @@ export default function NarraProvider({ children }: NarraProviderProps) {
     return order;
   }, []);
 
+  const payOrder = useCallback(async (orderId: string) => {
+    const checkoutUrl = await createOrderCheckout(orderId);
+    window.location.assign(checkoutUrl);
+  }, []);
+
   const setOrderStatus = useCallback(
     async (orderId: string, status: OrderStatus) => {
       const order = await transitionOrder(orderId, status);
@@ -216,6 +222,7 @@ export default function NarraProvider({ children }: NarraProviderProps) {
       signUp,
       signOut,
       placeOrder,
+      payOrder,
       setOrderStatus,
       requestWithdrawal,
       decideWithdrawal,
@@ -231,6 +238,7 @@ export default function NarraProvider({ children }: NarraProviderProps) {
     signUp,
     signOut,
     placeOrder,
+    payOrder,
     setOrderStatus,
     requestWithdrawal,
     decideWithdrawal,

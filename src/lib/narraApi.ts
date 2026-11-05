@@ -1,11 +1,11 @@
 import { supabase } from '@/lib/supabase';
 import { translateAuthError } from '@/lib/orders';
-import type { BriefingType, Creator, CreatorMediaPatch, CreatorPatch, MarketMode, Order, OrderDraft, OrderStatus, Profile, ProfilePatch, UserRole, WalletEntry, WalletSnapshot, Withdrawal, WithdrawalStatus } from '@/types/narra';
+import type { BriefingType, Creator, CreatorMediaPatch, CreatorPatch, MarketMode, Order, OrderDraft, OrderStatus, PaymentStatus, Profile, ProfilePatch, UserRole, WalletEntry, WalletSnapshot, Withdrawal, WithdrawalStatus } from '@/types/narra';
 
 const CREATOR_COLUMNS =
   'id, owner_id, mode, name, bio, price_per_minute, deadlines, styles, languages, rating, wave_seed, is_active, avatar_url, banner_url, demo_url';
 const ORDER_COLUMNS =
-  'id, client_id, client_name, client_avatar_url, creator_id, minutes, style, briefing_type, briefing, total, status, created_at';
+  'id, client_id, client_name, client_avatar_url, creator_id, minutes, style, briefing_type, briefing, total, status, payment_status, created_at';
 const PROFILE_COLUMNS = 'id, name, role, avatar_url';
 const WALLET_ENTRY_COLUMNS = 'id, description, amount, created_at';
 const WITHDRAWAL_COLUMNS = 'id, owner_id, creator_name, amount, pix_key, status, created_at, decided_at';
@@ -40,6 +40,7 @@ interface OrderRow {
   briefing: string;
   total: number | string;
   status: OrderStatus;
+  payment_status: PaymentStatus;
   created_at: string;
 }
 
@@ -83,6 +84,7 @@ function mapOrder(row: OrderRow): Order {
     briefing: row.briefing,
     total: Number(row.total),
     status: row.status,
+    paymentStatus: row.payment_status,
     createdAt: row.created_at,
   };
 }
@@ -280,6 +282,15 @@ export async function insertOrder(creatorId: string, draft: OrderDraft): Promise
     .select(ORDER_COLUMNS)
     .single();
   return mapOrder(unwrap(data as unknown as OrderRow | null, error));
+}
+
+export async function createOrderCheckout(orderId: string): Promise<string> {
+  const { data, error } = await supabase.functions.invoke<{ url?: unknown; error?: string }>('create-order-checkout', {
+    body: { orderId },
+  });
+  if (error) throw new Error(data?.error ?? DATA_ERROR_MESSAGE);
+  if (typeof data?.url !== 'string') throw new Error(DATA_ERROR_MESSAGE);
+  return data.url;
 }
 
 export async function transitionOrder(orderId: string, status: OrderStatus): Promise<Order> {

@@ -8,6 +8,7 @@ export interface NarraContextValue extends NarraState {
   signUp: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
   signOut: () => Promise<void>;
   placeOrder: (creatorId: string, draft: OrderDraft) => Promise<Order>;
+  payOrder: (orderId: string) => Promise<void>;
   setOrderStatus: (orderId: string, status: OrderStatus) => Promise<void>;
   requestWithdrawal: (amount: number, pixKey: string) => Promise<void>;
   decideWithdrawal: (withdrawalId: string, approve: boolean) => Promise<void>;

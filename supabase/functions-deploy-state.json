@@ -1,0 +1,13 @@
+{
+  "projectId": "72667910",
+  "functions": {
+    "create-order-checkout": {
+      "hasChanged": false,
+      "hash": "c4cc0eb45eb99dbf80fe29dcf0155b9745802b8260ee5fc819e6e8f2a6f00782"
+    },
+    "stripe-webhook": {
+      "hasChanged": false,
+      "hash": "d6151eb631619a3cd7dc5fde4c2afa5a8cae642b41b811d23730511876d20eb3"
+    }
+  }
+}

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ClipboardList, Home, LogIn, ShieldCheck, UserRound, Wallet } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { CheckCircle2, ClipboardList, Home, LogIn, ShieldCheck, UserRound, Wallet, X } from 'lucide-react';
 import AdminWithdrawalsView from '@/components/AdminWithdrawalsView';
 import AuthModal from '@/components/AuthModal';
 import BottomNav from '@/components/BottomNav';
@@ -21,9 +21,15 @@ import type { Creator, MarketMode } from '@/types/narra';
 
 type TabId = 'inicio' | 'pedidos' | 'carteira' | 'conta' | 'admin' | 'entrar';
 
+const PAYMENT_NOTICES: Record<string, string> = {
+  sucesso: 'Recebemos o seu pagamento. Se o pedido ainda aparecer como aguardando pagamento, atualize a página em instantes.',
+  cancelado: 'Pagamento cancelado. Você pode pagar o pedido depois na sua lista de pedidos.',
+};
+
 function App() {
   const { authReady, profile, creators, orders, loadError, currentCreator, isAdmin } = useNarra();
-  const [tab, setTab] = useState<TabId>('inicio');
+  const [paymentReturn, setPaymentReturn] = useState<string | null>(() => new URLSearchParams(window.location.search).get('pagamento'));
+  const [tab, setTab] = useState<TabId>(() => (paymentReturn ? 'pedidos' : 'inicio'));
   const [mode, setMode] = useState<MarketMode>('audio');
   const [orderingCreator, setOrderingCreator] = useState<Creator | null>(null);
   const [isPickingCreator, setIsPickingCreator] = useState(false);
@@ -32,6 +38,10 @@ function App() {
   const isCreator = profile?.role === 'criador';
   const activeTab: TabId = profile ? tab : 'inicio';
   const visibleCreators = creators.filter((creator) => creator.mode === mode);
+
+  useEffect(() => {
+    if (paymentReturn) window.history.replaceState(null, '', window.location.pathname);
+  }, [paymentReturn]);
 
   const pendingCount = profile
     ? orders.filter(
@@ -77,6 +87,16 @@ function App() {
 
       <main className="mx-auto max-w-md px-4 pb-60 pt-2">
         {!authReady && <p className="py-16 text-center text-sm text-zinc-500">Carregando...</p>}
+
+        {paymentReturn && PAYMENT_NOTICES[paymentReturn] && (
+          <div role="status" className="mt-4 flex items-start gap-3 rounded-xl border border-primary-500/30 bg-primary-500/10 px-4 py-3 text-sm text-primary-200">
+            <CheckCircle2 size={18} className="mt-0.5 shrink-0" />
+            <p className="flex-1 leading-normal">{PAYMENT_NOTICES[paymentReturn]}</p>
+            <button type="button" aria-label="Fechar aviso" onClick={() => setPaymentReturn(null)} className="shrink-0 text-primary-300 transition hover:text-primary-100">
+              <X size={18} />
+            </button>
+          </div>
+        )}
 
         {loadError && (
           <p role="alert" className="mt-4 rounded-xl border border-error-500/30 bg-error-500/10 px-4 py-3 text-sm text-error-400">

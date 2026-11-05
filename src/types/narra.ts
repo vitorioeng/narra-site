@@ -8,6 +8,8 @@ export type WithdrawalStatus = 'pendente' | 'aprovado' | 'recusado';
 
 export type BriefingType = 'texto' | 'roteiro';
 
+export type PaymentStatus = 'aguardando_pagamento' | 'pago';
+
 export interface Creator {
   id: string;
   ownerId: string | null;
@@ -90,5 +92,6 @@ export interface Order extends OrderDraft {
   creatorId: string;
   total: number;
   status: OrderStatus;
+  paymentStatus: PaymentStatus;
   createdAt: string;
 }
