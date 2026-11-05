@@ -10,6 +10,7 @@ export interface NarraContextValue extends NarraState {
   placeOrder: (creatorId: string, draft: OrderDraft) => Promise<Order>;
   setOrderStatus: (orderId: string, status: OrderStatus) => Promise<void>;
   requestWithdrawal: (amount: number, pixKey: string) => Promise<void>;
+  decideWithdrawal: (withdrawalId: string, approve: boolean) => Promise<void>;
   saveCreator: (creatorId: string, patch: CreatorPatch) => Promise<void>;
   saveCreatorAvailability: (creatorId: string, isActive: boolean) => Promise<void>;
   saveCreatorMedia: (creatorId: string, patch: CreatorMediaPatch) => Promise<void>;

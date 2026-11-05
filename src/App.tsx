@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { ClipboardList, Home, LogIn, UserRound } from 'lucide-react';
+import { ClipboardList, Home, LogIn, ShieldCheck, UserRound, Wallet } from 'lucide-react';
+import AdminWithdrawalsView from '@/components/AdminWithdrawalsView';
 import AuthModal from '@/components/AuthModal';
 import BottomNav from '@/components/BottomNav';
 import type { NavTab } from '@/components/BottomNav';
@@ -14,13 +15,14 @@ import PlayerBar from '@/components/PlayerBar';
 import ProfileView from '@/components/ProfileView';
 import SearchFilters from '@/components/SearchFilters';
 import Topbar from '@/components/Topbar';
+import WalletView from '@/components/WalletView';
 import { useNarra } from '@/state/useNarra';
 import type { Creator, MarketMode } from '@/types/narra';
 
-type TabId = 'inicio' | 'pedidos' | 'conta' | 'entrar';
+type TabId = 'inicio' | 'pedidos' | 'carteira' | 'conta' | 'admin' | 'entrar';
 
 function App() {
-  const { authReady, profile, creators, orders, loadError, currentCreator } = useNarra();
+  const { authReady, profile, creators, orders, loadError, currentCreator, isAdmin } = useNarra();
   const [tab, setTab] = useState<TabId>('inicio');
   const [mode, setMode] = useState<MarketMode>('audio');
   const [orderingCreator, setOrderingCreator] = useState<Creator | null>(null);
@@ -45,7 +47,9 @@ function App() {
     ? [
         { id: 'inicio', label: 'Início', icon: Home },
         { id: 'pedidos', label: 'Meus Pedidos', icon: ClipboardList },
+        ...(isCreator ? [{ id: 'carteira', label: 'Carteira', icon: Wallet }] : []),
         { id: 'conta', label: isCreator ? 'Meu Perfil' : 'Perfil', icon: UserRound },
+        ...(isAdmin ? [{ id: 'admin', label: 'Admin', icon: ShieldCheck }] : []),
       ]
     : [
         { id: 'inicio', label: 'Início', icon: Home },
@@ -104,7 +108,9 @@ function App() {
         )}
 
         {activeTab === 'pedidos' && <OrdersView />}
+        {activeTab === 'carteira' && isCreator && <WalletView />}
         {activeTab === 'conta' && <ProfileView />}
+        {activeTab === 'admin' && isAdmin && <AdminWithdrawalsView />}
       </main>
 
       {activeTab === 'inicio' && (

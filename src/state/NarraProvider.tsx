@@ -7,6 +7,7 @@ import {
   checkPlatformAdmin,
   createOwnedCreator,
   createProfile,
+  decideWithdrawal as decideWithdrawalApi,
   fetchCreators,
   fetchOrders,
   fetchProfile,
@@ -180,6 +181,10 @@ export default function NarraProvider({ children }: NarraProviderProps) {
     [profileId, refreshWallet]
   );
 
+  const decideWithdrawal = useCallback(async (withdrawalId: string, approve: boolean) => {
+    await decideWithdrawalApi(withdrawalId, approve);
+  }, []);
+
   const saveCreator = useCallback(async (creatorId: string, patch: CreatorPatch) => {
     const creator = await updateCreator(creatorId, patch);
     dispatch({ type: 'UPSERT_CREATOR', creator });
@@ -213,6 +218,7 @@ export default function NarraProvider({ children }: NarraProviderProps) {
       placeOrder,
       setOrderStatus,
       requestWithdrawal,
+      decideWithdrawal,
       saveCreator,
       saveCreatorAvailability,
       saveCreatorMedia,
@@ -227,6 +233,7 @@ export default function NarraProvider({ children }: NarraProviderProps) {
     placeOrder,
     setOrderStatus,
     requestWithdrawal,
+    decideWithdrawal,
     saveCreator,
     saveCreatorAvailability,
     saveCreatorMedia,

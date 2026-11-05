@@ -9,6 +9,7 @@ const STATUS_STYLE: Record<OrderStatus, string> = {
   pendente: 'border-accent-500/30 bg-accent-500/10 text-accent-300',
   em_gravacao: 'border-secondary-500/30 bg-secondary-500/10 text-secondary-300',
   entregue: 'border-primary-500/30 bg-primary-500/10 text-primary-300',
+  concluido: 'border-primary-500/30 bg-primary-500/20 text-primary-200',
   recusado: 'border-error-500/30 bg-error-500/10 text-error-400',
 };
 
@@ -117,6 +118,26 @@ export default function OrdersView() {
                         Aceitar
                       </button>
                     </div>
+                  )}
+                  {isCreator && order.status === 'em_gravacao' && (
+                    <button
+                      type="button"
+                      disabled={isBusy}
+                      onClick={() => changeStatus(order.id, 'entregue')}
+                      className="h-9 rounded-xl bg-primary-500 px-3 text-xs font-semibold text-zinc-950 transition hover:bg-primary-400 disabled:opacity-50"
+                    >
+                      Marcar como entregue
+                    </button>
+                  )}
+                  {!isCreator && order.status === 'entregue' && (
+                    <button
+                      type="button"
+                      disabled={isBusy}
+                      onClick={() => changeStatus(order.id, 'concluido')}
+                      className="h-9 rounded-xl bg-primary-500 px-3 text-xs font-semibold text-zinc-950 transition hover:bg-primary-400 disabled:opacity-50"
+                    >
+                      Aprovar entrega
+                    </button>
                   )}
                 </div>
               </li>
